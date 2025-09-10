@@ -2,6 +2,7 @@
 using SimHub.Plugins;
 using System;
 using System.Windows.Media;
+using WoteverCommon.Extensions;
 
 namespace OpenFFBoard.PluginSdk
 {
@@ -10,6 +11,11 @@ namespace OpenFFBoard.PluginSdk
     [PluginName("OpenFFBoard companion plugin")]
     public class DataPlugin : IPlugin, IDataPlugin, IWPFSettingsV2
     {
+        private enum AcceptableMainClassEnum
+        {
+            FFBMain = 1
+        }
+
         public DataPluginSettings Settings;
         public OpenFFBoard.Board OpenFFBoard;
         public string[] Boards = null;
@@ -46,11 +52,11 @@ namespace OpenFFBoard.PluginSdk
                 SimHub.Logging.Current.Info("Game is running cool");
                 if (data.OldData != null && data.NewData != null)
                 {
-                   if (data.OldData.SpeedKmh < Settings.SpeedWarningLevel && data.OldData.SpeedKmh >= Settings.SpeedWarningLevel)
+                   /* if (data.OldData.SpeedKmh < Settings.SpeedWarningLevel && data.OldData.SpeedKmh >= Settings.SpeedWarningLevel)
                    {
                         //  Trigger an event
-                       this.TriggerEvent("SpeedWarning");
-                   }
+                       //this.TriggerEvent("SpeedWarning");
+                   } */
                 }
             }
         }
@@ -62,8 +68,14 @@ namespace OpenFFBoard.PluginSdk
         /// <param name="pluginManager"></param>
         public void End(PluginManager pluginManager)
         {
-            // Save settings
-            this.SaveCommonSettings("GeneralSettings", Settings);
+            this.SaveConfig();
+
+            this.Disconnect();
+        }
+
+        public void SaveConfig()
+        {
+            this.SaveCommonSettings("GeneralSettings", Settings, 5);
         }
 
         /// <summary>
@@ -73,13 +85,25 @@ namespace OpenFFBoard.PluginSdk
         /// <returns></returns>
         public System.Windows.Controls.Control GetWPFSettingsControl(PluginManager pluginManager)
         {
-            return new SettingsControlDemo(this);
+            return new SettingsControl(this);
         }
 
         public void ConnectToBoard(string comPort, int baudRate)
         {
-            this.OpenFFBoard = new OpenFFBoard.Serial(comPort, baudRate);
-            this.OpenFFBoard.Connect();
+            if (string.IsNullOrEmpty(comPort))
+            {
+                return;
+            }
+
+            OpenFFBoard = new OpenFFBoard.Serial(comPort, baudRate);
+            OpenFFBoard.Connect();
+
+            byte mainClass = OpenFFBoard.System.GetMain();
+
+            if (!Enum.IsDefined(typeof(AcceptableMainClassEnum), (int)mainClass))
+            {
+                throw new Exception($"Incompatible board main class {mainClass}");
+            }
         }
 
         public bool IsConnected()
@@ -112,43 +136,41 @@ namespace OpenFFBoard.PluginSdk
             Settings = this.ReadCommonSettings<DataPluginSettings>("GeneralSettings", () => new DataPluginSettings());
 
             Boards = global::OpenFFBoard.Serial.GetBoards();
+            ConnectToBoard(Settings.ConnectTo, Settings.BaudRate);
 
-            if (Settings.ConnectTo != null)
-            {
-                ConnectToBoard(Settings.ConnectTo, Settings.BaudRate);
-            }
-
+            /*
             // Declare a property available in the property list, this gets evaluated "on demand" (when shown or used in formulas)
             //this.AttachDelegate(name: "CurrentDateTime", valueProvider: () => DateTime.Now);
 
             // Declare an event
-            //this.AddEvent(eventName: "SpeedWarning");
+            this.AddEvent(eventName: "SpeedWarning");
 
             // Declare an action which can be called
-            /* this.AddAction(
+            this.AddAction(
                 actionName: "IncrementSpeedWarning",
                 actionStart: (a, b) =>
                 {
                     Settings.SpeedWarningLevel++;
                     SimHub.Logging.Current.Info("Speed warning changed");
-                }); */
+                });
 
             // Declare an action which can be called, actions are meant to be "triggered" and does not reflect an input status (pressed/released ...)
-            /* this.AddAction(
+            this.AddAction(
                 actionName: "DecrementSpeedWarning",
                 actionStart: (a, b) =>
                 {
                     Settings.SpeedWarningLevel--;
-                }); */
+                });
 
             // Declare an input which can be mapped, inputs are meant to be keeping state of the source inputs,
             // they won't trigger on inputs not capable of "holding" their state.
             // Internally they work similarly to AddAction, but are restricted to a "during" behavior
-            /* this.AddInputMapping(
+            this.AddInputMapping(
                 inputName: "InputPressed",
                 inputPressed: (a, b) => {/* One of the mapped input has been pressed   * /},
                 inputReleased: (a, b) => {/* One of the mapped input has been released * /}
-            ); */
+            );
+            */
         }
     }
 }

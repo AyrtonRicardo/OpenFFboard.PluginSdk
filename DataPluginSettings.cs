@@ -5,8 +5,9 @@
     /// </summary>
     public class DataPluginSettings
     {
-        public int SpeedWarningLevel = 100;
         public int BaudRate = 115200;
         public string ConnectTo = null;
+        public bool AutoConnectOnStartup = false;
+        public string ProfileJsonPath = null;
     }
 }

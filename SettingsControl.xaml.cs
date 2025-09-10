@@ -3,19 +3,31 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Controls;
+using User.PluginSdkDemo.DTO;
 
 namespace OpenFFBoard.PluginSdk
 {
     /// <summary>
-    /// Logique d'interaction pour SettingsControlDemo.xaml
+    /// SettingsControl.xaml interaction class.
     /// </summary>
-    public partial class SettingsControlDemo : UserControl
+    public partial class SettingsControl : UserControl
     {
         public DataPlugin Plugin { get; }
 
-        public SettingsControlDemo()
+        public SettingsControl()
         {
             InitializeComponent();
+        }
+
+        public SettingsControl(DataPlugin plugin) : this()
+        {
+            this.Plugin = plugin;
+
+            ViewAutoConnectOnStartup.IsChecked = Plugin.Settings.AutoConnectOnStartup;
+            ViewLastError.Text = "";
+            ViewProfileJsonPath.Text = Plugin.Settings.ProfileJsonPath;
+
+            ViewProfileData.Text = ProfileHolder.LoadFromJson(Plugin.Settings.ProfileJsonPath + "\\profiles.json").Profiles.Count + " profiles loaded";
         }
 
         public string ConnectionString()
@@ -34,34 +46,6 @@ namespace OpenFFBoard.PluginSdk
                 Plugin.Settings.ConnectTo = connectedTo;
             }
             ViewConnectedTo.Text = connectedTo;
-        }
-
-        public SettingsControlDemo(DataPlugin plugin) : this()
-        {
-            this.Plugin = plugin;
-        }
-
-        private async void StyledMessageBox_Click(object sender, System.Windows.RoutedEventArgs e)
-        {
-            var res = await SHMessageBox.Show("Message box", "Hello", System.Windows.MessageBoxButton.OKCancel, System.Windows.MessageBoxImage.Question);
-
-            await SHMessageBox.Show(res.ToString());
-        }
-
-        private void DemoWindow_Click(object sender, System.Windows.RoutedEventArgs e)
-        {
-            var window = new DemoWindow();
-
-            window.Show();
-        }
-
-        private async void DemodialogWindow_Click(object sender, System.Windows.RoutedEventArgs e)
-        {
-            var dialogWindow = new DemoDialogWindow();
-
-            var res = await dialogWindow.ShowDialogWindowAsync(this);
-
-            await SHMessageBox.Show(res.ToString());
         }
 
         private void ViewBoards_Loaded(object sender, System.Windows.RoutedEventArgs e)
@@ -88,7 +72,7 @@ namespace OpenFFBoard.PluginSdk
                 }
             }
 
-            this.UpdateConnectedTo(SelectedBoard()?.Name);
+            UpdateConnectedTo(SelectedBoard()?.Name);
         }
 
         private void ViewBoards_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -125,19 +109,18 @@ namespace OpenFFBoard.PluginSdk
                 var selected = SelectedBoard();
                 if (selected == null)
                 {
-                    var res = await SHMessageBox.Show("Message box", "No COM selected", System.Windows.MessageBoxButton.OKCancel, System.Windows.MessageBoxImage.Question);
+                    var res = await SHMessageBox.Show("Please select a COM", "No COM selected", System.Windows.MessageBoxButton.OKCancel, System.Windows.MessageBoxImage.Question);
                     await SHMessageBox.Show(res.ToString());
                     return;
                 }
 
                 Plugin.ConnectToBoard(SelectedBoard().Name, Plugin.Settings.BaudRate);
-                this.UpdateConnectedTo(SelectedBoard().Name);
+                UpdateConnectedTo(SelectedBoard().Name);
             }
             catch (Exception ex)
             {
                 await SHMessageBox.Show(ex.ToString());
             }
-
         }
 
         private async void ViewSelectedCom_Disconnect(object sender, System.Windows.RoutedEventArgs e)
@@ -161,7 +144,24 @@ namespace OpenFFBoard.PluginSdk
             {
                 await SHMessageBox.Show(ex.ToString());
             }
+        }
 
+        private void SaveConfiguration_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            if (Plugin == null)
+            {
+                return;
+            }
+
+            try 
+            {
+                Plugin.SaveConfig();
+            }
+            catch (Exception ex)
+            {
+                ErrorHasHappened($"failed to save configuration: {ex.Message}");
+            }
+            
         }
 
         private async void SetProfileToCurrentGame_Click(object sender, System.Windows.RoutedEventArgs e)
@@ -188,6 +188,47 @@ namespace OpenFFBoard.PluginSdk
             DebugResponse.Text = Plugin.OpenFFBoard.Main.GetId().ToString();
 
             ViewCurrentActiveProfile.Text = gameName;
+        }
+
+        private void ErrorHasHappened(string error)
+        {
+            ViewLastError.Text = error;
+        }
+
+        private void ViewAutoConnectOnStartup_Checked(object sender, System.Windows.RoutedEventArgs e)
+        {
+            if (Plugin == null)
+            {
+                return;
+            }
+
+            Plugin.Settings.AutoConnectOnStartup = (bool)ViewAutoConnectOnStartup.IsChecked;
+        }
+
+        private void ViewAutoConnectOnStartup_Unchecked(object sender, System.Windows.RoutedEventArgs e)
+        {
+            if (Plugin == null)
+            {
+                return;
+            }
+
+            Plugin.Settings.AutoConnectOnStartup = (bool)ViewAutoConnectOnStartup.IsChecked;
+        }
+        
+        private void SelectProfileJsonPath_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            if (Plugin == null)
+            {
+                return;
+            }
+
+            var dialog = new System.Windows.Forms.FolderBrowserDialog();
+            var result = dialog.ShowDialog();
+            if (result == System.Windows.Forms.DialogResult.OK)
+            {
+                Plugin.Settings.ProfileJsonPath = dialog.SelectedPath;
+                ViewProfileJsonPath.Text = Plugin.Settings.ProfileJsonPath;
+            }
         }
     }
 
