@@ -52,7 +52,7 @@ jobs:
         name: build-file
 
     - name: Test Dir
-      run: Dir
+      run: ls -lah .
 
     - name: Create release
       uses: softprops/action-gh-release@v2
