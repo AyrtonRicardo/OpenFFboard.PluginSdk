@@ -15,7 +15,7 @@ jobs:
 
     outputs:
       latest_tag: ${{ steps.fetchkeys.outputs.latest_tag }}
-      download_url: ${{ steps.fetchkeys.outputs.latest_tag }}
+      download_url: ${{ steps.fetchkeys.outputs.download_url }}
 
     steps:
       - uses: actions/checkout@v5
