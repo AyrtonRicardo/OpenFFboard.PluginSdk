@@ -57,19 +57,27 @@ jobs:
       id: cache
       with:
         path: |
+          innounp050.rar
           SimHub.${{ needs.identify-simhub-version.outputs.latest_tag }}.zip
         key: SimHub.${{ needs.identify-simhub-version.outputs.latest_tag }}
 
     - name: Download Requirements # Used to download the SimHub DLLs - only if not in cache.
       if: steps.cache.outputs.cache-hit != 'true'
       run: | 
+        aria2c -j1 -o innounp050.rar "https://sourceforge.net/projects/innounp/files/innounp/innounp%200.50/innounp050.rar/download"
         aria2c -j1 -o SimHub.${{ needs.identify-simhub-version.outputs.latest_tag }}.zip "${{ needs.identify-simhub-version.outputs.download_url }}"
 
     - name: Extract Requirements # Used to extract the SimHub DLLs
       run: | 
+        7z x innounp050.rar
         7z x SimHub.${{ needs.identify-simhub-version.outputs.latest_tag }}.zip
         dir
         mkdir D:\SimHub
+        D:\a\OpenFFboard.PluginSdk\OpenFFboard.PluginSdk\innounp.exe -v -x -b -e -d"D:\Program Files (x86)\SimHub\" SimHubSetup_${{ needs.identify-simhub-version.outputs.latest_tag }}.exe WoteverCommon.dll WoteverLocalization.dll GameReaderCommon.dll log4net.dll InputManagerCS.dll GongSolutions.WPF.DragDrop.dll
+        D:\a\OpenFFboard.PluginSdk\OpenFFboard.PluginSdk\innounp.exe -v -x -b -e -d"D:\Program Files (x86)\SimHub\" SimHubSetup_${{ needs.identify-simhub-version.outputs.latest_tag }}.exe SimHub.*.dll
+        D:\a\OpenFFboard.PluginSdk\OpenFFboard.PluginSdk\innounp.exe -v -x -b -e -d"D:\Program Files (x86)\SimHub\" SimHubSetup_${{ needs.identify-simhub-version.outputs.latest_tag }}.exe MahApps.*.dll
+        D:\a\OpenFFboard.PluginSdk\OpenFFboard.PluginSdk\innounp.exe -v -x -b -e -d"D:\Program Files (x86)\SimHub\" SimHubSetup_${{ needs.identify-simhub-version.outputs.latest_tag }}.exe AvalonDock.*.dll
+
 
     - name: Navigate to workspace
       run: cd $GITHUB_WORKSPACE
