@@ -5,8 +5,8 @@ name: Release
 on:
   workflow_dispatch:
   push:
-    tags: 
-    - 'v*'
+    tags:
+      - "v*.*.*"
 
 jobs:
   generate-changelog:
