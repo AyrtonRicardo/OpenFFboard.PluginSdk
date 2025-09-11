@@ -57,17 +57,17 @@ jobs:
       id: cache
       with:
         path: |
-          SimHub.${{ steps.identify-simhub-version.outputs.latest_tag }}.zip
-        key: SimHub.${{ steps.identify-simhub-version.outputs.latest_tag }}
+          SimHub.${{ needs.identify-simhub-version.outputs.latest_tag }}.zip
+        key: SimHub.${{ needs.identify-simhub-version.outputs.latest_tag }}
 
     - name: Download Requirements # Used to download the SimHub DLLs - only if not in cache.
       if: steps.cache.outputs.cache-hit != 'true'
       run: | 
-        aria2c -j1 -o SimHub.${{ steps.identify-simhub-version.outputs.latest_tag }}.zip "${{ steps.identify-simhub-version.outputs.download_url }}"
+        aria2c -j1 -o SimHub.${{ needs.identify-simhub-version.outputs.latest_tag }}.zip "${{ needs.identify-simhub-version.outputs.download_url }}"
 
     - name: Extract Requirements # Used to extract the SimHub DLLs
       run: | 
-        7z x SimHub.${{ steps.identify-simhub-version.outputs.latest_tag }}.zip
+        7z x SimHub.${{ needs.identify-simhub-version.outputs.latest_tag }}.zip
         dir
         mkdir D:\SimHub
 
