@@ -61,26 +61,26 @@ jobs:
           SimHub.${{ needs.identify-simhub-version.outputs.latest_tag }}.zip
         key: SimHub.${{ needs.identify-simhub-version.outputs.latest_tag }}
 
-      - name: Install SimHub
-        run: |
-          7z x SimHub.${{ needs.identify-simhub-version.outputs.latest_tag }}.zip
-          New-Item -Path "C:\" -Name "simhub" -ItemType "Directory"
-          ./SimHubSetup_${{ needs.identify-simhub-version.outputs.latest_tag }}.exe /VERYSILENT /Dir="D:\SimHub"
+    - name: Install SimHub
+      run: |
+        7z x SimHub.${{ needs.identify-simhub-version.outputs.latest_tag }}.zip
+        New-Item -Path "C:\" -Name "simhub" -ItemType "Directory"
+        ./SimHubSetup_${{ needs.identify-simhub-version.outputs.latest_tag }}.exe /VERYSILENT /Dir="D:\SimHub"
 
-          do {
-            Write-Output "Waiting for files..."
-            Start-Sleep -Seconds 5
-          } until (
-            (Test-Path -path "D:\SimHub\WoteverCommon.dll" -PathType Leaf) -and
-            (Test-Path -path "D:\SimHub\WoteverLocalization.dll" -PathType Leaf) -and
-            (Test-Path -path "D:\SimHub\GameReaderCommon.dll" -PathType Leaf) -and
-            (Test-Path -path "D:\SimHub\SimHub.Logging.dll" -PathType Leaf) -and
-            (Test-Path -path "D:\SimHub\SimHub.Plugins.dll" -PathType Leaf) -and
-            (Test-Path -path "D:\SimHub\log4net.dll" -PathType Leaf)
-          )
+        do {
+          Write-Output "Waiting for files..."
+          Start-Sleep -Seconds 5
+        } until (
+          (Test-Path -path "D:\SimHub\WoteverCommon.dll" -PathType Leaf) -and
+          (Test-Path -path "D:\SimHub\WoteverLocalization.dll" -PathType Leaf) -and
+          (Test-Path -path "D:\SimHub\GameReaderCommon.dll" -PathType Leaf) -and
+          (Test-Path -path "D:\SimHub\SimHub.Logging.dll" -PathType Leaf) -and
+          (Test-Path -path "D:\SimHub\SimHub.Plugins.dll" -PathType Leaf) -and
+          (Test-Path -path "D:\SimHub\log4net.dll" -PathType Leaf)
+        )
 
-          Start-Sleep -Seconds 3
-          Write-Output "All files are found"
+        Start-Sleep -Seconds 3
+        Write-Output "All files are found"
 
     - name: Navigate to workspace
       run: cd $GITHUB_WORKSPACE
