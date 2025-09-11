@@ -63,6 +63,8 @@ jobs:
 
     - name: Install SimHub
       run: |
+        7z x SimHub.8.01.2.zip
+        dir
         7z x SimHub.${{ needs.identify-simhub-version.outputs.latest_tag }}.zip
         New-Item -Path "D:\" -Name "SimHub" -ItemType "Directory"
         ./SimHubSetup_${{ needs.identify-simhub-version.outputs.latest_tag }}.exe /VERYSILENT /Dir="D:\SimHub"
