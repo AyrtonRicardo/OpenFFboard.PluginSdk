@@ -53,7 +53,8 @@ jobs:
 
     - name: Create release
       uses: softprops/action-gh-release@v2
+      if: ${{startsWith(github.ref, 'refs/tags/') }}
       with:
         body: "${{ needs.generate-changelog.outputs.release_body }}"
         fail_on_unmatched_files: true
-        files: ${{ env.ReleaseFileName }}
+        files: build-file
