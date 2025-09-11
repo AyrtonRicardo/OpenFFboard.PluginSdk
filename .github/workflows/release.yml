@@ -31,6 +31,10 @@ jobs:
         env:
           OUTPUT: CHANGES.md
 
+  build:
+    uses: ./.github/workflows/build.yml
+    secrets: inherit
+
   create-release:
     runs-on: ubuntu-latest
 

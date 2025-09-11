@@ -8,6 +8,7 @@ on:
   pull_request:
     branches: [ main ]
   workflow_dispatch:
+  workflow_call:
 
 jobs:
   identify-simhub-version:
@@ -59,20 +60,15 @@ jobs:
       name: Restore Caches
       id: cache
       with:
-        path: |
-          innounp.exe
-          SimHub.${{ needs.identify-simhub-version.outputs.latest_tag }}.zip
+        path: SimHub.${{ needs.identify-simhub-version.outputs.latest_tag }}.zip
         key: SimHub.${{ needs.identify-simhub-version.outputs.latest_tag }}
 
-    - name: Download Requirements # Used to download the SimHub DLLs - only if not in cache.
+    - name: Install SimHub # Used to download the SimHub DLLs - only if not in cache.
       if: steps.cache.outputs.cache-hit != 'true'
       run: | 
-        aria2c -j1 -o SimHub.${{ needs.identify-simhub-version.outputs.latest_tag }}.zip "${{ needs.identify-simhub-version.outputs.download_url }}"
-        7z x SimHub.${{ needs.identify-simhub-version.outputs.latest_tag }}.zip
+        aria2c -j1 -o SimHubSetup.${{ needs.identify-simhub-version.outputs.latest_tag }}.zip "${{ needs.identify-simhub-version.outputs.download_url }}"
+        7z x SimHubSetup.${{ needs.identify-simhub-version.outputs.latest_tag }}.zip -y
 
-    - name: Install SimHub
-      run: |
-        7z x SimHub.${{ needs.identify-simhub-version.outputs.latest_tag }}.zip -y
         New-Item -Path "D:\" -Name "SimHub" -ItemType "Directory"
         ./SimHubSetup_${{ needs.identify-simhub-version.outputs.latest_tag }}.exe /VERYSILENT /Dir="D:\SimHub"
 
@@ -80,16 +76,18 @@ jobs:
           Write-Output "Waiting for files..."
           Start-Sleep -Seconds 5
         } until (
-          (Test-Path -path "D:\SimHub\WoteverCommon.dll" -PathType Leaf) -and
-          (Test-Path -path "D:\SimHub\WoteverLocalization.dll" -PathType Leaf) -and
-          (Test-Path -path "D:\SimHub\GameReaderCommon.dll" -PathType Leaf) -and
-          (Test-Path -path "D:\SimHub\SimHub.Logging.dll" -PathType Leaf) -and
-          (Test-Path -path "D:\SimHub\SimHub.Plugins.dll" -PathType Leaf) -and
-          (Test-Path -path "D:\SimHub\log4net.dll" -PathType Leaf)
+          (Test-Path -path "${{ env.SIMHUB_INSTALL_PATH }}WoteverCommon.dll" -PathType Leaf) -and
+          (Test-Path -path "${{ env.SIMHUB_INSTALL_PATH }}WoteverLocalization.dll" -PathType Leaf) -and
+          (Test-Path -path "${{ env.SIMHUB_INSTALL_PATH }}GameReaderCommon.dll" -PathType Leaf) -and
+          (Test-Path -path "${{ env.SIMHUB_INSTALL_PATH }}SimHub.Logging.dll" -PathType Leaf) -and
+          (Test-Path -path "${{ env.SIMHUB_INSTALL_PATH }}SimHub.Plugins.dll" -PathType Leaf) -and
+          (Test-Path -path "${{ env.SIMHUB_INSTALL_PATH }}log4net.dll" -PathType Leaf)
         )
 
         Start-Sleep -Seconds 3
         Write-Output "All files are found"
+
+        Compress-Archive -Path ${{ env.SIMHUB_INSTALL_PATH }} -DestinationPath ./SimHub.${{ needs.identify-simhub-version.outputs.latest_tag }}.zip
 
     - name: Navigate to workspace
       run: cd $GITHUB_WORKSPACE
