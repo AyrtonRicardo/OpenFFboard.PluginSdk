@@ -2,9 +2,25 @@
 
 Minimal Plugin for integrating OpenFFBoard to Simhub.
 
+**this project is a work in progress atm**
+
 ## Features
 
 - WIP
+
+## How to use
+
+- Go to [releases](https://github.com/AyrtonRicardo/OpenFFboardPlugin/releases)
+- Download `OpenFFBoardPlugin.zip`
+- Copy the dll's from inside the zip to your simhub installation folder.
+- Make sure you restart SimHub.
+- Click `Add/Remove features` in your simbub.
+- Search for `OpenFFBoard`
+- Include it and make sure select "show in left menu"
+
+The plugin looks at moment like this:
+![plugin image](./docs/images/openffboard_companion.png)
+
 
 ## Contributing
 
