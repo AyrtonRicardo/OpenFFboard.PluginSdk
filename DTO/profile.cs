@@ -1,7 +1,5 @@
-﻿using System;
-using System.Text.Json;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
+using User.PluginSdkDemo.Utils;
 
 namespace User.PluginSdkDemo.DTO
 {
@@ -13,25 +11,13 @@ namespace User.PluginSdkDemo.DTO
 
         public static ProfileHolder LoadFromJson(string profilePath)
         {
-            try 
-            {
-                if (!File.Exists(profilePath))
-                {
-                    return null;
-                }
-                string text = File.ReadAllText(profilePath);
-                return JsonSerializer.Deserialize<ProfileHolder>(text);
-            }
-            catch (Exception)
-            {
-                return null;
-            }
+            return JsonHandler.LoadFromJsonFile<ProfileHolder>(profilePath);
         }
     }
 
     internal class GlobalSettings
         {
-        public bool Donotnotify_updates { get; set; }
+        public bool DonotnotifyUpdates { get; set; }
         public string Language { get; set; }
     }
 
@@ -46,7 +32,7 @@ namespace User.PluginSdkDemo.DTO
         public string Fullname { get; set; }
         public string Cls { get; set; }
         public int Instance { get; set; }
-        public string Ccmd { get; set; }
+        public string Cmd { get; set; }
         public int Value { get; set; }
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Controls;
 using User.PluginSdkDemo.DTO;
+using WoteverCommon;
 
 namespace OpenFFBoard.PluginSdk
 {
@@ -13,6 +14,8 @@ namespace OpenFFBoard.PluginSdk
     public partial class SettingsControl : UserControl
     {
         public DataPlugin Plugin { get; }
+
+        internal ProfileHolder ProfileData { get; }
 
         public SettingsControl()
         {
@@ -27,7 +30,12 @@ namespace OpenFFBoard.PluginSdk
             ViewLastError.Text = "";
             ViewProfileJsonPath.Text = Plugin.Settings.ProfileJsonPath;
 
-            ViewProfileData.Text = ProfileHolder.LoadFromJson(Plugin.Settings.ProfileJsonPath + "\\profiles.json").Profiles.Count + " profiles loaded";
+            if (!string.IsNullOrEmpty(Plugin.Settings.ProfileJsonPath))
+            {
+                ProfileData = ProfileHolder.LoadFromJson(Plugin.Settings.ProfileJsonPath + "\\profiles.json");
+            }
+
+            SetViewProfileData();
         }
 
         public string ConnectionString()
@@ -185,9 +193,9 @@ namespace OpenFFBoard.PluginSdk
             }
 
             var gameName = Plugin.PluginManager.GameManager.GameName();
-            DebugResponse.Text = Plugin.OpenFFBoard.Main.GetId().ToString();
 
             ViewCurrentActiveProfile.Text = gameName;
+            Plugin.UpdateProfileDataIfConnected();
         }
 
         private void ErrorHasHappened(string error)
@@ -229,6 +237,17 @@ namespace OpenFFBoard.PluginSdk
                 Plugin.Settings.ProfileJsonPath = dialog.SelectedPath;
                 ViewProfileJsonPath.Text = Plugin.Settings.ProfileJsonPath;
             }
+        }
+
+        private void SetViewProfileData()
+        {
+            if (ProfileData == null)
+            {
+                return;
+            }
+
+            ViewProfileData.Text = $"{ProfileData?.Profiles?.Count} profiles found";
+            ViewCurrentActiveProfile.Text = Plugin.ActiveProfile;
         }
     }
 

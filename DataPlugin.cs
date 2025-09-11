@@ -2,6 +2,8 @@
 using SimHub.Plugins;
 using System;
 using System.Windows.Media;
+using User.PluginSdkDemo.DTO;
+using User.PluginSdkDemo.Utils;
 using WoteverCommon.Extensions;
 
 namespace OpenFFBoard.PluginSdk
@@ -17,8 +19,9 @@ namespace OpenFFBoard.PluginSdk
         }
 
         public DataPluginSettings Settings;
-        public OpenFFBoard.Board OpenFFBoard;
+        public OpenFFBoard.Serial OpenFFBoard;
         public string[] Boards = null;
+        public string ActiveProfile = null;
 
         /// <summary>
         /// Instance of the current plugin manager
@@ -122,6 +125,62 @@ namespace OpenFFBoard.PluginSdk
             OpenFFBoard = null;
         }
 
+        private ProfileHolder LoadProfileData()
+        {
+            if (string.IsNullOrEmpty(Settings.ProfileJsonPath))
+            {
+                return null;
+            }
+
+            try
+            {
+                return ProfileHolder.LoadFromJson(Settings.ProfileJsonPath + "\\profiles.json");
+            }
+            catch (Exception ex)
+            {
+                SimHub.Logging.Current.Error($"Failed to load profile data from {Settings.ProfileJsonPath}: {ex.Message}");
+            }
+
+            return null;
+        }
+
+        internal void UpdateProfileDataIfConnected()
+        {
+            if (!OpenFFBoard.IsConnected || string.IsNullOrEmpty(PluginManager?.GameManager?.GameName()))
+            {
+                return;
+            }
+
+            // TODO: do not ship debug mode
+            OpenFFBoard.System.SetDebug(true);
+
+            var gameName = PluginManager.GameManager.GameName();
+
+            ProfileHolder profileHolder = LoadProfileData();
+            if (profileHolder == null || profileHolder.Profiles == null || profileHolder.Profiles.Count == 0)
+            {
+                SimHub.Logging.Current.Warn("No profiles found");
+                return;
+            }
+
+            var profile = profileHolder.Profiles.Find(p => p.Name.Equals(gameName, StringComparison.InvariantCultureIgnoreCase));
+            if (profile == null)
+            {
+                SimHub.Logging.Current.Warn($"No profile found for game {gameName}");
+                return;
+            }
+
+            ProfileToSerialConverter.ConvertProfileToCommands(profile, OpenFFBoard).ForEach(cmd =>
+            {
+                if (!cmd())
+                {
+                    SimHub.Logging.Current.Error("Failed to execute command");
+                }
+            });
+
+            ActiveProfile = profile.Name;
+        }
+
         /// <summary>
         /// Called once after plugins startup
         /// Plugins are rebuilt at game change
@@ -130,13 +189,14 @@ namespace OpenFFBoard.PluginSdk
         public void Init(PluginManager pluginManager)
         {
             SimHub.Logging.Current.Info("Starting plugin");
-            Console.WriteLine("THIS HAS STARTED");
 
             // Load settings
             Settings = this.ReadCommonSettings<DataPluginSettings>("GeneralSettings", () => new DataPluginSettings());
 
             Boards = global::OpenFFBoard.Serial.GetBoards();
             ConnectToBoard(Settings.ConnectTo, Settings.BaudRate);
+
+            UpdateProfileDataIfConnected();
 
             /*
             // Declare a property available in the property list, this gets evaluated "on demand" (when shown or used in formulas)
