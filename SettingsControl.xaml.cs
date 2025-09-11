@@ -3,10 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Controls;
-using User.PluginSdkDemo.DTO;
-using WoteverCommon;
+using OpenFFBoardPlugin.DTO;
 
-namespace OpenFFBoard.PluginSdk
+namespace OpenFFBoardPlugin
 {
     /// <summary>
     /// SettingsControl.xaml interaction class.

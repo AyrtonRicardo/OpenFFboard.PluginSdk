@@ -14,7 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace OpenFFBoard.PluginSdk
+namespace OpenFFBoardPlugin
 {
     /// <summary>
     /// Logique d'interaction pour DemoWindow.xaml

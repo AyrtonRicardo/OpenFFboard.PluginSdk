@@ -1,4 +1,4 @@
-﻿namespace OpenFFBoard.PluginSdk
+﻿namespace OpenFFBoardPlugin
 {
     /// <summary>
     /// Settings class, make sure it can be correctly serialized using JSON.net

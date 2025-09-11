@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using User.PluginSdkDemo.Utils;
+using OpenFFBoardPlugin.Utils;
 
-namespace User.PluginSdkDemo.DTO
+namespace OpenFFBoardPlugin.DTO
 {
     internal class ProfileHolder
     {

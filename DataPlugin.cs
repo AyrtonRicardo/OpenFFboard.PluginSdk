@@ -2,11 +2,11 @@
 using SimHub.Plugins;
 using System;
 using System.Windows.Media;
-using User.PluginSdkDemo.DTO;
-using User.PluginSdkDemo.Utils;
+using OpenFFBoardPlugin.DTO;
+using OpenFFBoardPlugin.Utils;
 using WoteverCommon.Extensions;
 
-namespace OpenFFBoard.PluginSdk
+namespace OpenFFBoardPlugin
 {
     [PluginDescription("OpenFFBoard plugin to communicate with openffboard firmware")]
     [PluginAuthor("Ayrton Ricardo")]

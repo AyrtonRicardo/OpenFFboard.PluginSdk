@@ -103,8 +103,7 @@ jobs:
     - name: Zip output DLL file
       run: |
         dir ./bin/Release/
-        Compress-Archive -Path ./bin/Release/OpenFFBoard.Plugin.dll, ./bin/Release/OpenFFBSharp.dll -DestinationPath ./main.zip
-#${{ env.ReleaseFileName }}
+        Compress-Archive -Path ./bin/Release/OpenFFBoardPlugin.dll -DestinationPath ./main.zip
 
     - name: Upload artifact
       id: artifact-upload-step

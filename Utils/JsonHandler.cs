@@ -3,7 +3,7 @@ using Newtonsoft.Json.Serialization;
 using System;
 using System.IO;
 
-namespace User.PluginSdkDemo.Utils
+namespace OpenFFBoardPlugin.Utils
 {
     internal class JsonHandler
     {
