@@ -14,14 +14,14 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      latest_tag: ${{ steps.precheck.outputs.latest_tag }}
-      download_url: ${{ steps.precheck.outputs.latest_tag }}
+      latest_tag: ${{ steps.fetchkeys.outputs.latest_tag }}
+      download_url: ${{ steps.fetchkeys.outputs.latest_tag }}
 
     steps:
       - uses: actions/checkout@v5
 
       - name: Fetch latest binary
-        id: precheck
+        id: fetchkeys
         continue-on-error: true
         run: |
           curl -Ls "https://api.github.com/repos/SHWotever/SimHub/releases/latest" -o latest_simhub.json
