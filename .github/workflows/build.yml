@@ -60,7 +60,7 @@ jobs:
       name: Restore Caches
       id: cache
       with:
-        path: SimHub.${{ needs.identify-simhub-version.outputs.latest_tag }}.zip
+        path: ${{ env.SIMHUB_INSTALL_PATH }}
         key: SimHub.${{ needs.identify-simhub-version.outputs.latest_tag }}
 
     - name: Install SimHub # Used to download the SimHub DLLs - only if not in cache.
