@@ -87,8 +87,6 @@ jobs:
         Start-Sleep -Seconds 3
         Write-Output "All files are found"
 
-        Compress-Archive -Path ${{ env.SIMHUB_INSTALL_PATH }} -DestinationPath ./SimHub.${{ needs.identify-simhub-version.outputs.latest_tag }}.zip
-
     - name: Navigate to workspace
       run: cd $GITHUB_WORKSPACE
 
