@@ -45,7 +45,7 @@ jobs:
       project_dlls: ${{ steps.artifact-upload-step.outputs.artifact-id }}
 
     env:
-      SIMHUB_INSTALL_PATH: "D:\\SimHub\\"
+      SIMHUB_INSTALL_PATH: "D:\\SimHub${{ needs.identify-simhub-version.outputs.latest_tag }}\\"
 
     steps:
     - uses: actions/checkout@v5
