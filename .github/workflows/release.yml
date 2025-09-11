@@ -49,7 +49,7 @@ jobs:
     - name: Download artifact
       uses: actions/download-artifact@v5
       with:
-        name: ${{ needs.build.outputs.project_dlls }}
+        name: build-file
 
     - name: Create release
       uses: softprops/action-gh-release@v2
