@@ -41,7 +41,7 @@ jobs:
       - identify-simhub-version
 
     env:
-      - SIMHUB_INSTALL_PATH: "D:\\SimHub"
+      SIMHUB_INSTALL_PATH: "D:\\SimHub"
 
     steps:
     - uses: actions/checkout@v5
