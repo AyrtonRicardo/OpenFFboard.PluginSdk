@@ -39,10 +39,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AvalonDock">
-      <HintPath>$(SIMHUB_INSTALL_PATH)\AvalonDock.dll</HintPath>
+      <HintPath>$(SIMHUB_INSTALL_PATH)AvalonDock.dll</HintPath>
     </Reference>
     <Reference Include="AvalonDock.Themes.VS2013">
-      <HintPath>$(SIMHUB_INSTALL_PATH)\AvalonDock.Themes.VS2013.dll</HintPath>
+      <HintPath>$(SIMHUB_INSTALL_PATH)AvalonDock.Themes.VS2013.dll</HintPath>
     </Reference>
     <Reference Include="Device.Net, Version=4.3.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\Device.Net.4.3.0-beta\lib\net45\Device.Net.dll</HintPath>

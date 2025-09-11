@@ -69,7 +69,6 @@ jobs:
 
     - name: Install SimHub
       run: |
-        dir
         7z x SimHub.${{ needs.identify-simhub-version.outputs.latest_tag }}.zip -y
         New-Item -Path "D:\" -Name "SimHub" -ItemType "Directory"
         ./SimHubSetup_${{ needs.identify-simhub-version.outputs.latest_tag }}.exe /VERYSILENT /Dir="D:\SimHub"
@@ -98,12 +97,13 @@ jobs:
     - name: Build
       run: msbuild OpenFFBoard.PluginSdk.sln /p:Configuration=Release
 
-    - name: Zip output DLL file
-      run: Compress-Archive -Path ./bin/Release/OpenFFBoard.PluginSdk.dll -DestinationPath ./${{ env.ReleaseFileName }}
-
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: build-file
-        path: ${{ env.ReleaseFileName }}
-
+#    - name: Zip output DLL file
+#      run: |
+#        dir ./bin/Release/
+#        Compress-Archive -Path ./bin/Release/OpenFFBoard.Plugin.dll, ./bin/Release/OpenFFBSharp.dll -DestinationPath ./${{ env.ReleaseFileName }}
+#
+#    - name: Upload artifact
+#      uses: actions/upload-artifact@v4
+#      with:
+#        name: build-file
+#        path: ${{ env.ReleaseFileName }}
