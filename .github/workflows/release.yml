@@ -9,7 +9,7 @@ on:
     - 'v*'
 
 env:
-  ReleaseFileName: OpenFFBoard.PluginSdk_${{ github.ref_name }}.zip
+  ReleaseFileName: OpenFFBoardPlugin_${{ github.ref_name }}.zip
 
 jobs:
   generate-changelog:
