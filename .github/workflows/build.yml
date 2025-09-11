@@ -69,8 +69,8 @@ jobs:
         aria2c -j1 -o SimHubSetup.${{ needs.identify-simhub-version.outputs.latest_tag }}.zip "${{ needs.identify-simhub-version.outputs.download_url }}"
         7z x SimHubSetup.${{ needs.identify-simhub-version.outputs.latest_tag }}.zip -y
 
-        New-Item -Path "D:\" -Name "SimHub" -ItemType "Directory"
-        ./SimHubSetup_${{ needs.identify-simhub-version.outputs.latest_tag }}.exe /VERYSILENT /Dir="D:\SimHub"
+        New-Item -Path "D:\" -Name "SimHub${{ needs.identify-simhub-version.outputs.latest_tag }}" -ItemType "Directory"
+        ./SimHubSetup_${{ needs.identify-simhub-version.outputs.latest_tag }}.exe /VERYSILENT /Dir="${{ env.SIMHUB_INSTALL_PATH }}"
 
         do {
           Write-Output "Waiting for files..."
