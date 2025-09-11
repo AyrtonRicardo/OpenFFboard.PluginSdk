@@ -65,7 +65,7 @@ jobs:
       if: steps.cache.outputs.cache-hit != 'true'
       run: | 
         aria2c -j1 -o SimHub.${{ needs.identify-simhub-version.outputs.latest_tag }}.zip "${{ needs.identify-simhub-version.outputs.download_url }}"
-        7z x SimHub.8.01.2.zip
+        7z x SimHub.${{ needs.identify-simhub-version.outputs.latest_tag }}.zip
 
     - name: Install SimHub
       run: |
