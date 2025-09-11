@@ -1,0 +1,95 @@
+# This workflow will build a .NET project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+name: Build Plugin
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+  concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+  identify-simhub-version:
+    runs-on: ubuntu-latest
+
+    outputs:
+      latest_tag: ${{ steps.precheck.outputs.latest_tag }}
+      download_url: ${{ steps.precheck.outputs.latest_tag }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Fetch latest binary
+        id: precheck
+        continue-on-error: true
+        run: |
+          curl -Ls "https://api.github.com/repos/SHWotever/SimHub/releases/latest" -o latest_simhub.json
+          LATEST_TAG=$(grep -Po '"tag_name": "\K[^"]*' ./latest_simhub.json)
+          DOWNLOAD_URL=$(grep -Po '"browser_download_url": "\K[^"]*' ./latest_simhub.json)
+
+          echo "Latest build: $LATEST_TAG"
+          echo "Download link: $DOWNLOAD_URL"
+
+          echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+          echo "download_url=$DOWNLOAD_URL" >> $GITHUB_OUTPUT
+
+  build:
+    runs-on: windows-latest
+
+    needs:
+      - identify-simhub-version
+
+    env:
+      - SIMHUB_INSTALL_PATH: "D:\\SimHub"
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Setup NuGet
+      uses: NuGet/setup-nuget@v1.0.6
+
+    - uses: actions/cache@v3
+      name: Restore Caches
+      id: cache
+      with:
+        path: |
+          SimHub.${{ steps.identify-simhub-version.outputs.latest_tag }}.zip
+        key: SimHub.${{ steps.identify-simhub-version.outputs.latest_tag }}
+
+    - name: Download Requirements # Used to download the SimHub DLLs - only if not in cache.
+      if: steps.cache.outputs.cache-hit != 'true'
+      run: | 
+        aria2c -j1 -o SimHub.${{ steps.identify-simhub-version.outputs.latest_tag }}.zip "${{ steps.identify-simhub-version.outputs.download_url }}"
+
+    - name: Extract Requirements # Used to extract the SimHub DLLs
+      run: | 
+        7z x SimHub.${{ steps.identify-simhub-version.outputs.latest_tag }}.zip
+        dir
+        mkdir D:\SimHub
+
+    - name: Navigate to workspace
+      run: cd $GITHUB_WORKSPACE
+
+    - name: Restore NuGet Packages
+      run: nuget restore OpenFFBoard.PluginSdk.sln
+
+    - name: Build
+      run: msbuild OpenFFBoard.PluginSdk.sln /p:Configuration=Release
+
+    - name: Zip output DLL file
+      run: Compress-Archive -Path ./bin/Release/OpenFFBoard.PluginSdk.dll -DestinationPath ./${{ env.ReleaseFileName }}
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-file
+        path: ${{ env.ReleaseFileName }}
+
